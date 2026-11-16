@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+<link rel="manifest" href="favicon/site.webmanifest">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro | Nextstage WebApp</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+    <div class="app-main">
+      <header id="app-topbar" class="app-topbar"></header>
+
+      <main class="app-content">
+        <div class="module-tabs">
+          <button class="module-tab active" data-target="tab-fin-pesquisa">Registros Financeiros & Pesquisa</button>
+          <button class="module-tab" data-target="tab-fin-lancar">Novo Lançamento</button>
+          <button class="module-tab" data-target="tab-fin-categorias">Categorias Financeiras</button>
+          <button class="module-tab" data-target="tab-fin-importar">Importação Manual</button>
+        </div>
+
+        <!-- 1. Pesquisa e Edição (Admin RF042 / Funcionário RF043) -->
+        <section id="tab-fin-pesquisa" class="tab-panel active">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2>Movimentações Financeiras por Evento</h2>
+              <span class="badge badge-sky" id="resumoFiltroFin">Total Filtrado: R$ 0,00</span>
+            </div>
+
+            <div class="filter-bar">
+              <div class="form-group">
+                <label>Período (Mês)</label>
+                <input type="month" id="filtroFinMes" class="form-control" onchange="renderFinanceiro()">
+              </div>
+              <div class="form-group">
+                <label>Evento</label>
+                <input type="text" id="filtroFinEvento" class="form-control" placeholder="Filtrar por evento..." oninput="renderFinanceiro()">
+              </div>
+              <div class="form-group">
+                <label>Forma de Pagamento</label>
+                <select id="filtroFinForma" class="form-control" onchange="renderFinanceiro()">
+                  <option value="">Todas</option>
+                  <option value="PIX / Transferência">PIX / Transferência</option>
+                  <option value="Boleto Bancário">Boleto Bancário</option>
+                  <option value="Cartão de Crédito">Cartão de Crédito</option>
+                  <option value="Transferência TED">Transferência TED</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select id="filtroFinStatus" class="form-control" onchange="renderFinanceiro()">
+                  <option value="">Todos</option>
+                  <option value="Pago">Pago</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Agendado">Agendado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Evento / Categoria</th>
+                    <th>Forma Pagto.</th>
+                    <th>Valor Líquido</th>
+                    <th>Status</th>
+                    <th>Ação (Admin RF042)</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyFinanceiro"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Lançamento de Registros Financeiros (RF041) -->
+        <section id="tab-fin-lancar" class="tab-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2>Lançar Registro Financeiro</h2>
+            </div>
+            <form onsubmit="lancarFinanceiro(event)">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Descrição</label>
+                  <input type="text" id="finDesc" class="form-control" required placeholder="Ex.: Parcela 2 - Buffet Evento">
+                </div>
+                <div class="form-group">
+                  <label>Evento Vinculado</label>
+                  <input type="text" id="finEvento" class="form-control" required value="Summit TechSul 2026">
+                </div>
+                <div class="form-group">
+                  <label>Categoria Financeira</label>
+                  <select id="finCategoria" class="form-control">
+                    <option>Receitas de Eventos</option>
+                    <option>Sinal / Entrada de Contrato</option>
+                    <option>Cachê Prestadores de Serviço</option>
+                    <option>Locação de Espaço e Materiais</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Forma de Pagamento</label>
+                  <select id="finForma" class="form-control">
+                    <option>PIX / Transferência</option>
+                    <option>Boleto Bancário</option>
+                    <option>Cartão de Crédito</option>
+                    <option>Transferência TED</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Valor Bruto (R$)</label>
+                  <input type="number" step="0.01" id="finValor" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label>Descontos (R$)</label>
+                  <input type="number" step="0.01" id="finDescVal" class="form-control" value="0">
+                </div>
+                <div class="form-group">
+                  <label>Acréscimo (R$)</label>
+                  <input type="number" step="0.01" id="finAcrescVal" class="form-control" value="0">
+                </div>
+                <div class="form-group">
+                  <label>Status</label>
+                  <select id="finStatus" class="form-control">
+                    <option>Pago</option>
+                    <option>Pendente</option>
+                    <option>Agendado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Observação</label>
+                <input type="text" id="finObs" class="form-control">
+              </div>
+              <button type="submit" class="btn btn-primary">Registrar Lançamento</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- 3. Cadastro de Categorias Financeiras (RF040 - Admin) -->
+        <section id="tab-fin-categorias" class="tab-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2>Categorias Financeiras</h2>
+            </div>
+            <form onsubmit="cadastrarCategoriaFin(event)" class="filter-bar">
+              <div class="form-group">
+                <label>Código</label>
+                <input type="text" id="catCod" class="form-control" required placeholder="CAT-03">
+              </div>
+              <div class="form-group">
+                <label>Descrição</label>
+                <input type="text" id="catDesc" class="form-control" required placeholder="Impostos e Taxas">
+              </div>
+              <div class="form-group">
+                <label>Categoria Pai</label>
+                <input type="text" id="catPai" class="form-control" value="Custos Operacionais">
+              </div>
+              <div class="form-group">
+                <label>Cor Identificadora</label>
+                <input type="color" id="catCor" class="form-control" value="#587584" style="height:40px;">
+              </div>
+              <button type="submit" class="btn btn-primary">Cadastrar Categoria</button>
+            </form>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead><tr><th>Código</th><th>Descrição</th><th>Categoria Pai</th><th>Cor</th></tr></thead>
+                <tbody id="tbodyCatFin"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Importação Manual de Históricos Financeiros (RF044) -->
+        <section id="tab-fin-importar" class="tab-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2>Importação Manual de Histórico Financeiro</h2>
+            </div>
+            <p style="font-size:0.9rem; margin-bottom:12px;">
+				Formato: <code>Descrição;Valor;FormaPagamento;Categoria;Evento;Desconto;Acrescimo;Observacao</code>
+			</p>
+            <div class="form-group">
+				<textarea id="finImportText" class="form-control" rows="4" placeholder="Sinal Extra;5000;PIX / Transferência;Receitas de Eventos;Summit TechSul 2026;0;0;Importado"></textarea>
+			</div>
+			<div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+				<button class="btn btn-primary" onclick="importarFinanceiro()">Importar Registros</button>
+			</div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initTopbarRoleSwitcher('Financeiro', 'financeiro.html');
+    initModuleTabs();
+
+    function renderFinanceiro() {
+      const db = getDB();
+      const role = getCurrentRole();
+      const mes = document.getElementById('filtroFinMes').value;
+      const ev = document.getElementById('filtroFinEvento').value.toLowerCase();
+      const forma = document.getElementById('filtroFinForma').value;
+      const status = document.getElementById('filtroFinStatus').value;
+
+      const list = db.financeiro.filter(f => {
+        return (!mes || f.data.startsWith(mes)) &&
+               (!ev || f.evento.toLowerCase().includes(ev) || f.descricao.toLowerCase().includes(ev)) &&
+               (!forma || f.formaPagamento === forma) &&
+               (!status || f.status === status);
+      });
+
+      let soma = 0;
+      document.getElementById('tbodyFinanceiro').innerHTML = list.map(f => {
+        const liq = f.valorBruto - f.desconto + f.acrescimo;
+        soma += liq;
+        const badge = f.status === 'Pago' ? 'badge-success' : f.status === 'Pendente' ? 'badge-warning' : 'badge-sky';
+        return `
+          <tr>
+            <td><strong>${f.id}</strong></td>
+            <td>${f.data}</td>
+            <td>${f.descricao}<br><small style="color:#66747a;">${f.obs}</small></td>
+            <td>${f.evento}<br><small>${f.categoria}</small></td>
+            <td>${f.formaPagamento}</td>
+            <td><strong>${formatBRL(liq)}</strong></td>
+            <td><span class="badge ${badge}">${f.status}</span></td>
+            <td>
+              ${role === 'Administrador'
+                ? `<button class="btn btn-outline btn-sm" onclick="editarRegistroFin('${f.id}')">Editar</button>`
+                : `<small style="color:#8b9ba3;">Somente Admin</small>`}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('resumoFiltroFin').textContent = `Volume Filtrado: ${formatBRL(soma)}`;
+    }
+
+    function lancarFinanceiro(e) {
+      e.preventDefault();
+      const db = getDB();
+      db.financeiro.unshift({
+        id: 'FIN-' + (101 + db.financeiro.length),
+        data: '2026-11-15',
+        descricao: document.getElementById('finDesc').value,
+        evento: document.getElementById('finEvento').value,
+        categoria: document.getElementById('finCategoria').value,
+        formaPagamento: document.getElementById('finForma').value,
+        valorBruto: Number(document.getElementById('finValor').value),
+        desconto: Number(document.getElementById('finDescVal').value || 0),
+        acrescimo: Number(document.getElementById('finAcrescVal').value || 0),
+        status: document.getElementById('finStatus').value,
+        obs: document.getElementById('finObs').value || '-'
+      });
+      saveDB(db);
+      renderFinanceiro();
+      e.target.reset();
+      showToast('Registro financeiro lançado com sucesso!');
+      document.querySelector('[data-target="tab-fin-pesquisa"]').click();
+    }
+
+    function editarRegistroFin(id) {
+      const db = getDB();
+      const item = db.financeiro.find(x => x.id === id);
+      const novoStatus = item.status === 'Pago' ? 'Pendente' : 'Pago';
+      item.status = novoStatus;
+      db.auditorias.unshift({
+        dataHora: '15/11/2026 15:55',
+        usuario: 'joao.luiz',
+        autorizador: 'joao.luiz',
+        modulo: 'Financeiro',
+        acao: `Edição de Registro ${id} alterado para ${novoStatus}`,
+        tipo: 'Edição'
+      });
+      saveDB(db);
+      renderFinanceiro();
+      showToast(`Registro ${id} atualizado e auditado!`);
+    }
+
+    function renderCategoriasFin() {
+      const db = getDB();
+      document.getElementById('tbodyCatFin').innerHTML = db.categoriasFinanceiras.map(c => `
+        <tr>
+          <td><strong>${c.codigo}</strong></td>
+          <td>${c.descricao}</td>
+          <td>${c.pai}</td>
+          <td><span style="display:inline-block; width:18px; height:18px; border-radius:4px; background:${c.cor}; vertical-align:middle;"></span> ${c.cor}</td>
+        </tr>
+      `).join('');
+    }
+
+    function cadastrarCategoriaFin(e) {
+      e.preventDefault();
+      const db = getDB();
+      db.categoriasFinanceiras.push({
+        codigo: document.getElementById('catCod').value,
+        descricao: document.getElementById('catDesc').value,
+        pai: document.getElementById('catPai').value,
+        cor: document.getElementById('catCor').value
+      });
+      saveDB(db);
+      renderCategoriasFin();
+      e.target.reset();
+      showToast('Categoria financeira cadastrada (RF040).');
+    }
+
+    function importarFinanceiro() {
+      const lines = document.getElementById('finImportText').value.trim().split('\n').filter(Boolean);
+      if (!lines.length) return;
+      const db = getDB();
+      lines.forEach(l => {
+        const [descricao, valor, formaPagamento, categoria, evento, desconto, acrescimo, obs] = l.split(';');
+        db.financeiro.unshift({
+          id: 'FIN-IMP-' + Math.floor(10 + Math.random() * 89),
+          data: '2026-11-15',
+          descricao,
+          evento: evento || 'Evento Geral',
+          categoria: categoria || 'Receitas de Eventos',
+          formaPagamento: formaPagamento || 'PIX / Transferência',
+          valorBruto: Number(valor || 0),
+          desconto: Number(desconto || 0),
+          acrescimo: Number(acrescimo || 0),
+          status: 'Pago',
+          obs: obs || 'Importado (RF044)'
+        });
+      });
+      saveDB(db);
+      renderFinanceiro();
+      showToast(`${lines.length} registro(s) financeiro(s) importado(s)!`);
+      document.querySelector('[data-target="tab-fin-pesquisa"]').click();
+    }
+
+    renderFinanceiro();
+    renderCategoriasFin();
+  </script>
+</body>
+</html>

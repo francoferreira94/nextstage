@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+<link rel="manifest" href="favicon/site.webmanifest">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Eventos | Nextstage WebApp</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+    <div class="app-main">
+      <header id="app-topbar" class="app-topbar"></header>
+
+      <main class="app-content">
+        <div class="module-tabs">
+          <button class="module-tab active" data-target="tab-calendario">Calendário de Eventos</button>
+		  <button class="module-tab" data-target="tab-pedido-orcamento">Novo Orçamento de Eventos</button>
+		  <button class="module-tab" data-target="tab-pesquisa-eventos">Pesquisa Eventos</button>
+        </div>
+
+		<!-- 1. Exibição da Agenda de Eventos e Parceiros (RF036, RF037) -->
+        <section id="tab-calendario" class="tab-panel active">
+		  <div class="panel-card">
+			
+			<!-- Cabeçalho com o seletor de Mês/Ano -->
+			<div class="panel-header" style="align-items: center; flex-wrap: wrap; gap: 14px;">
+			  <div>
+				<h2 style="margin-bottom: 2px;">Calendário de Eventos</h2>
+				<p style="font-size: 0.84rem; color: #556268;">Selecione o mês desejado para visualizar a grade mensal de compromissos.</p>
+			  </div>
+			  
+			  <!-- Seletor de Mês/Ano exclusivo do Calendário -->
+			  <div style="display: flex; align-items: center; gap: 8px;">
+				<label style="font-size: 0.85rem; font-weight: 600; color: var(--color-dark-slate);">Mês/Ano:</label>
+				<input type="month" id="calendarioMesAno" class="form-control" value="2026-11" onchange="renderCalendar()" style="width: 170px;">
+			  </div>
+			</div>
+
+			<div style="display: flex; gap: 12px; font-size: 0.82rem; margin-bottom: 16px;">
+			  <span class="badge badge-sky">Evento Confirmado</span>
+			  <span class="badge badge-primary">Alocação de Parceiro</span>
+			</div>
+
+			<div class="calendar-grid" id="calendarGrid"></div>
+		  </div>
+		</section>
+
+        <!-- 2. Pedido & Simulação Automática de Orçamento por Etapas (RF028, RF029) -->
+        <section id="tab-pedido-orcamento" class="tab-panel">
+		  <div style="margin-bottom: 20px;">
+			<h2 style="font-size: 1.4rem; color: var(--color-dark-slate); margin-bottom: 4px;">Solicitar Orçamento de Evento</h2>
+			<p style="font-size: 0.9rem; color: #556268;">Selecione os itens abaixo para simular o valor e verificar disponibilidade em tempo real.</p>
+		  </div>
+
+		  <form onsubmit="criarOrcamento(event)">
+			<div class="budget-layout-grid">
+			  
+			  <!-- COLUNA ESQUERDA: Formulários e Etapas -->
+			  <div style="display: flex; flex-direction: column; gap: 20px;">
+				
+				<!-- Bloco 1: Dados Básicos -->
+				<div class="panel-card" style="margin-bottom: 0;">
+				  <h3 style="font-size: 1.05rem; margin-bottom: 14px;">1. Dados Básicos do Evento</h3>
+				  <div class="form-grid">
+					<div class="form-group">
+					  <label>Tipo de Evento (RF012)</label>
+					  <select id="orcTipo" class="form-control" onchange="simularValorOrcamento()">
+						<option value="Casamento">Casamento</option>
+						<option value="Corporativo">Corporativo</option>
+						<option value="Formatura">Formatura</option>
+						<option value="Social">Social</option>
+					  </select>
+					</div>
+					<div class="form-group">
+					  <label>Data Pretendida</label>
+					  <input type="date" id="orcData" class="form-control" required value="2026-12-12" onchange="verificarDisponibilidadeData()">
+					</div>
+					<div class="form-group">
+					  <label>Nº de Convidados</label>
+					  <input type="number" id="orcConvidados" class="form-control" value="100" min="10" oninput="simularValorOrcamento()">
+					</div>
+				  </div>
+				</div>
+
+				<!-- Bloco 2: Local de Realização -->
+				<div class="panel-card" style="margin-bottom: 0;">
+				  <h3 style="font-size: 1.05rem; margin-bottom: 14px;">2. Local de Realização</h3>
+				  <div class="form-group" style="margin-bottom: 0;">
+					<select id="orcLocal" class="form-control" onchange="simularValorOrcamento()">
+					  <option value="Não preciso de local|0">Não preciso de local (R$ 0,00)</option>
+					  <option value="Espaço Villa Batel|12000">Espaço Villa Batel (R$ 12.000,00)</option>
+					  <option value="Centro de Convenções ExpoNext|18500">Centro de Convenções ExpoNext (R$ 18.500,00)</option>
+					</select>
+				  </div>
+				</div>
+
+				<!-- Bloco 3: Comida & Bebida -->
+				<div class="panel-card" style="margin-bottom: 0;">
+				  <h3 style="font-size: 1.05rem; margin-bottom: 14px;">3. Comida & Bebida</h3>
+				  <div class="form-group" style="margin-bottom: 0;">
+					<label style="font-weight: normal; color: #556268; font-size: 0.8rem;">Cardápio por Convidado</label>
+					<select id="orcCardapio" class="form-control" onchange="simularValorOrcamento()">
+					  <option value="Nenhum selecionado|0">Nenhum selecionado</option>
+					  <option value="Menu Contemporâneo Gala|185">Menu Contemporâneo Gala (R$ 185,00 / conv.)</option>
+					  <option value="Coffee Break & Coquetel Executivo|95">Coffee Break & Coquetel Executivo (R$ 95,00 / conv.)</option>
+					</select>
+				  </div>
+				</div>
+
+				<!-- Bloco 4: Decoração, Fotografia, Áudio e Gráfica (Checkboxes) -->
+				<div class="panel-card" style="margin-bottom: 0;">
+				  <h3 style="font-size: 1.05rem; margin-bottom: 14px;">4. Decoração, Fotografia, Áudio e Gráfica</h3>
+				  <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem;">
+					<label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+					  <input type="checkbox" name="adicional" value="Decoração Floral e Mobiliário Standard|2500" onchange="simularValorOrcamento()"> Decoração Floral e Mobiliário Standard (R$ 2.500,00)
+					</label>
+					<label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+					  <input type="checkbox" name="adicional" value="Cobertura Fotográfica e Vídeo Drone|3200" onchange="simularValorOrcamento()"> Cobertura Fotográfica e Vídeo Drone (R$ 3.200,00)
+					</label>
+					<label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+					  <input type="checkbox" name="adicional" value="Áudio: DJ + Pista de Dança LED|1800" onchange="simularValorOrcamento()"> Áudio: DJ + Pista de Dança LED (R$ 1.800,00)
+					</label>
+					<label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+					  <input type="checkbox" name="adicional" value="Gráfica: Convites Impresos e Menus de Mesa|650" onchange="simularValorOrcamento()"> Gráfica: Convites Impresos e Menus de Mesa (R$ 650,00)
+					</label>
+				  </div>
+				</div>
+
+			  </div>
+
+			  <!-- COLUNA DIREITA: Resumo da Simulação (Sticky) -->
+			  <div class="budget-sidebar-sticky">
+				<div class="panel-card" style="border-color: var(--color-primary); box-shadow: var(--shadow-md);">
+				  <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Simulação do Orçamento</h3>
+				  
+				  <div id="disponibilidadeBadgeContainer" style="margin-bottom: 14px;">
+					<span class="badge badge-success" id="dispStatusBadge">Data Disponível para Reserva</span>
+				  </div>
+
+				  <div style="border-bottom: 1px solid var(--color-border); padding-bottom: 12px; margin-bottom: 14px; min-height: 90px; font-size: 0.88rem; color: #556268;" id="resumoItensSelecionados">
+					Nenhum item selecionado ainda.
+				  </div>
+
+				  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+					<span style="font-family: var(--font-display); font-weight: 600; color: var(--color-dark-slate);">Estimativa Total:</span>
+					<span style="font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--color-primary);" id="estimativaTotalValor">R$ 0,00</span>
+				  </div>
+
+				  <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Enviar Pedido de Orçamento</button>
+				</div>
+			  </div>
+
+			</div>
+		  </form>
+		</section>
+      
+        <!-- 3. Pesquisa de Eventos com Filtros + Negociação + Aprovação + Finalização -->
+        <section id="tab-pesquisa-eventos" class="tab-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2>Eventos & Orçamentos</h2>
+              <button class="btn btn-primary btn-sm" onclick="document.querySelector('[data-target=\'tab-pedido-orcamento\']').click()">+ Novo Pedido de Orçamento</button>
+            </div>
+
+            <div class="filter-bar">
+              <div class="form-group">
+                <label>Período (Mês)</label>
+                <input type="month" id="filtroEvMes" class="form-control" onchange="renderEventos()">
+              </div>
+              <div class="form-group">
+                <label>Evento ou Cliente</label>
+                <input type="text" id="filtroEvNome" class="form-control" placeholder="Buscar evento..." oninput="renderEventos()">
+              </div>
+              <div class="form-group">
+                <label>Parceiro Vinculado</label>
+                <input type="text" id="filtroEvParceiro" class="form-control" placeholder="StageSound, Villa Batel..." oninput="renderEventos()">
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select id="filtroEvStatus" class="form-control" onchange="renderEventos()">
+                  <option value="">Todos</option>
+                  <option value="Aguardando Aprovação">Aguardando Aprovação</option>
+                  <option value="Aprovado">Aprovado</option>
+                  <option value="Realizado">Realizado</option>
+                  <option value="Recusado">Recusado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Evento / Cliente</th>
+                    <th>Data & Local</th>
+                    <th>Convidados</th>
+                    <th>Valor Orçado</th>
+                    <th>Parceiros</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyEventos"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        
+	  </main>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes, Edição Negociada (RF031), Parceiros (RF034) e Aprovação Cliente (RF033) -->
+  <div id="modalEvento" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalEvTitulo">Detalhes do Evento</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modalEvento')">✕</button>
+      </div>
+      <div id="modalEvBody"></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initTopbarRoleSwitcher('Agenda de Eventos & Orçamentos', 'agenda.html');
+    initModuleTabs();
+
+    function calcularSimulacao() {
+      const conv = Number(document.getElementById('orcConvidados').value || 0);
+      const local = Number(document.getElementById('orcLocal').value.split('|')[1]);
+      const deco = Number(document.getElementById('orcDecoracao').value.split('|')[1]);
+      const comida = Number(document.getElementById('orcComida').value.split('|')[1]) * conv;
+      const bebida = Number(document.getElementById('orcBebida').value.split('|')[1]) * conv;
+      const foto = Number(document.getElementById('orcFoto').value.split('|')[1]);
+      const audio = Number(document.getElementById('orcAudio').value.split('|')[1]);
+      const grafica = Number(document.getElementById('orcGrafica').value.split('|')[1]);
+      return local + deco + comida + bebida + foto + audio + grafica;
+    }
+
+    function simularValorOrcamento() {
+	  const conv = Number(document.getElementById('orcConvidados').value || 0);
+	  
+	  // Local
+	  const localVal = document.getElementById('orcLocal').value.split('|');
+	  const localNome = localVal[0];
+	  const localPreco = Number(localVal[1]);
+
+	  // Cardápio
+	  const cardVal = document.getElementById('orcCardapio').value.split('|');
+	  const cardNome = cardVal[0];
+	  const cardUnit = Number(cardVal[1]);
+	  const cardTotal = cardUnit * conv;
+
+	  let adicionaisTotal = 0;
+	  let itensHtml = [];
+
+	  if (localPreco > 0) itensHtml.append(`• ${localNome} (${formatBRL(localPreco)})`);
+	  if (cardUnit > 0) itensHtml.append(`• ${cardNome} x${conv} conv. (${formatBRL(cardTotal)})`);
+
+	  // Checkbox adicionais
+	  document.querySelectorAll('input[name="adicional"]:checked').forEach(cb => {
+		const parts = cb.value.split('|');
+		adicionaisTotal += Number(parts[1]);
+		itensHtml.push(`• ${parts[0]} (${formatBRL(parts[1])})`);
+	  });
+
+	  const totalGeral = localPreco + cardTotal + adicionaisTotal;
+
+	  // Atualiza painel lateral
+	  document.getElementById('estimativaTotalValor').textContent = formatBRL(totalGeral);
+	  const containerItens = document.getElementById('resumoItensSelecionados');
+	  if (itensHtml.length > 0) {
+		containerItens.innerHTML = itensHtml.join('<br>');
+	  } else {
+		containerItens.innerHTML = 'Nenhum item selecionado ainda.';
+	  }
+	}
+
+	function verificarDisponibilidadeData() {
+	  const dataInput = document.getElementById('orcData').value;
+	  const badge = document.getElementById('dispStatusBadge');
+	  const container = document.getElementById('disponibilidadeBadgeContainer');
+	  
+	  // Exemplo de verificação simples contra datas já ocupadas no banco
+	  const db = getDB();
+	  const ocupado = db.eventos.some(e => e.data === dataInput);
+
+	  if (ocupado) {
+		badge.className = 'badge badge-danger';
+		badge.textContent = 'Data Indisponível (Conflito de Agenda)';
+	  } else {
+		badge.className = 'badge badge-success';
+		badge.textContent = 'Data Disponível para Reserva';
+	  }
+	}
+
+    function criarOrcamento(e) {
+      e.preventDefault();
+      const db = getDB();
+      const total = calcularSimulacao();
+      const localNome = document.getElementById('orcLocal').value.split('|')[0];
+      db.eventos.unshift({
+        codigo: 'EVT-2026-0' + (db.eventos.length + 1),
+        nome: document.getElementById('orcNome').value,
+        cliente: document.getElementById('orcCliente').value,
+        tipo: 'Personalizado',
+        data: document.getElementById('orcData').value,
+        local: localNome,
+        convidados: Number(document.getElementById('orcConvidados').value),
+        valorTotal: total,
+        status: 'Aguardando Aprovação',
+        parceiros: ['StageSound Áudio & Iluminação'],
+        etapas: {
+          dados: document.getElementById('orcNome').value,
+          local: localNome,
+          decoracao: document.getElementById('orcDecoracao').value.split('|')[0],
+          comida: document.getElementById('orcComida').value.split('|')[0],
+          bebida: document.getElementById('orcBebida').value.split('|')[0],
+          fotoVideo: document.getElementById('orcFoto').value.split('|')[0],
+          audio: document.getElementById('orcAudio').value.split('|')[0],
+          grafica: document.getElementById('orcGrafica').value.split('|')[0]
+        }
+      });
+      saveDB(db);
+      renderEventos();
+      renderCalendar();
+      showToast('Orçamento gerado com disponibilidade verificada (RF028/RF029)!');
+      document.querySelector('[data-target="tab-pesquisa-eventos"]').click();
+    }
+
+    function renderEventos() {
+      const db = getDB();
+      const mes = document.getElementById('filtroEvMes').value;
+      const nome = document.getElementById('filtroEvNome').value.toLowerCase();
+      const parc = document.getElementById('filtroEvParceiro').value.toLowerCase();
+      const status = document.getElementById('filtroEvStatus').value;
+
+      const list = db.eventos.filter(ev => {
+        return (!mes || ev.data.startsWith(mes)) &&
+               (!nome || ev.nome.toLowerCase().includes(nome) || ev.cliente.toLowerCase().includes(nome)) &&
+               (!parc || ev.parceiros.join(' ').toLowerCase().includes(parc) || ev.local.toLowerCase().includes(parc)) &&
+               (!status || ev.status === status);
+      });
+
+      document.getElementById('tbodyEventos').innerHTML = list.map(ev => {
+        const badgeClass = ev.status === 'Aprovado' ? 'badge-success' : ev.status === 'Realizado' ? 'badge-primary' : ev.status === 'Recusado' ? 'badge-danger' : 'badge-warning';
+        return `
+          <tr>
+            <td><strong>${ev.codigo}</strong></td>
+            <td><strong>${ev.nome}</strong><br><small>${ev.cliente}</small></td>
+            <td>${ev.data}<br><small>${ev.local}</small></td>
+            <td>${ev.convidados}</td>
+            <td><strong>${formatBRL(ev.valorTotal)}</strong></td>
+            <td><small>${ev.parceiros.join(', ')}</small></td>
+            <td><span class="badge ${badgeClass}">${ev.status}</span></td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="abrirGestaoEvento('${ev.codigo}')">Gerenciar</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function abrirGestaoEvento(codigo) {
+      const db = getDB();
+      const ev = db.eventos.find(x => x.codigo === codigo);
+      if (!ev) return;
+      document.getElementById('modalEvTitulo').textContent = `${ev.codigo} — ${ev.nome}`;
+      document.getElementById('modalEvBody').innerHTML = `
+        <p style="font-size:0.88rem; margin-bottom:12px;"><strong>Etapas:</strong> Local: ${ev.etapas.local} | Comida: ${ev.etapas.comida} | Áudio: ${ev.etapas.audio}</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Editar Valor Negociado (RF031)</label>
+            <input type="number" id="editValorEv" class="form-control" value="${ev.valorTotal}">
+          </div>
+          <div class="form-group">
+            <label>Vincular Parceiro (RF034)</label>
+            <select id="addParceiroEv" class="form-control">
+              <option value="">-- Selecionar Parceiro --</option>
+              <option value="StageSound Áudio & Iluminação">StageSound Áudio & Iluminação</option>
+              <option value="Atelier Botânica & Cenografia">Atelier Botânica & Cenografia</option>
+              <option value="Crystal Eventos Locação Ltda">Crystal Eventos Locação Ltda</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Observações de Aprovação / Recusa (RF033 - Cliente)</label>
+          <input type="text" id="obsAprovacao" class="form-control" placeholder="Ex.: Aprovado conforme proposta revisada">
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;">
+          <button class="btn btn-primary btn-sm" onclick="salvarNegociacao('${ev.codigo}')">Salvar Negociação & Parceiro</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Orçamento enviado e parceiros notificados (RF032 / RF035)!')">Notificar Parceiros</button>
+          <button class="btn btn-dark btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Aprovado')">Aprovar Orçamento (RF033)</button>
+          <button class="btn btn-ghost btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Recusado')">Recusar</button>
+          <button class="btn btn-outline btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Realizado')">Finalizar Evento Realizado (RF038)</button>
+        </div>
+      `;
+      openModal('modalEvento');
+    }
+
+    function salvarNegociacao(codigo) {
+      const db = getDB();
+      const ev = db.eventos.find(x => x.codigo === codigo);
+      ev.valorTotal = Number(document.getElementById('editValorEv').value);
+      const novoParc = document.getElementById('addParceiroEv').value;
+      if (novoParc && !ev.parceiros.includes(novoParc)) ev.parceiros.push(novoParc);
+      saveDB(db);
+      renderEventos();
+      closeModal('modalEvento');
+      showToast('Orçamento editado e parceiros vinculados (RF031 / RF034).');
+    }
+
+    function alterarStatusEvento(codigo, novoStatus) {
+      const db = getDB();
+      const ev = db.eventos.find(x => x.codigo === codigo);
+      ev.status = novoStatus;
+      saveDB(db);
+      renderEventos();
+      renderCalendar();
+      closeModal('modalEvento');
+      showToast(`Status do evento atualizado para: ${novoStatus}.`);
+    }
+
+    function renderCalendar() {
+	  const db = getDB();
+	  const grid = document.getElementById('calendarGrid');
+	  
+	  // Pega o valor do input de mês/ano específico do calendário
+	  const inputMesAno = document.getElementById('calendarioMesAno');
+	  const valorMesAno = inputMesAno ? inputMesAno.value : '2026-11';
+	  
+	  const [anoStr, mesStr] = valorMesAno.split('-');
+	  const ano = parseInt(anoStr, 10);
+	  const mes = parseInt(mesStr, 10) - 1; // 0 a 11 em JavaScript
+
+	  // Calcula o total de dias do mês selecionado
+	  const totalDias = new Date(ano, mes + 1, 0).getDate();
+	  
+	  const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+	  let html = diasSemana.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+	  for (let day = 1; day <= totalDias; day++) {
+		const dateStr = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+		const evs = db.eventos.filter(e => e.data === dateStr);
+		
+		html += `
+		  <div class="calendar-cell">
+			<span class="day-num">${day}</span>
+			${evs.map(e => `
+			  <div class="cal-event-pill" onclick="abrirGestaoEvento('${e.codigo}')" title="${e.nome}">${e.nome}</div>
+			  <div class="cal-event-pill partner" title="Parceiros">${e.parceiros.length} parceiro(s)</div>
+			`).join('')}
+		  </div>
+		`;
+	  }
+	  grid.innerHTML = html;
+	}
+
+    simularValorOrcamento();
+    renderEventos();
+    renderCalendar();
+  </script>
+</body>
+</html>
