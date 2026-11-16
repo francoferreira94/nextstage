@@ -68,7 +68,7 @@
 				  <h3 style="font-size: 1.05rem; margin-bottom: 14px;">1. Dados Básicos do Evento</h3>
 				  <div class="form-grid">
 					<div class="form-group">
-					  <label>Tipo de Evento (RF012)</label>
+					  <label>Tipo de Evento</label>
 					  <select id="orcTipo" class="form-control" onchange="simularValorOrcamento()">
 						<option value="Casamento">Casamento</option>
 						<option value="Corporativo">Corporativo</option>
@@ -333,7 +333,7 @@
       saveDB(db);
       renderEventos();
       renderCalendar();
-      showToast('Orçamento gerado com disponibilidade verificada (RF028/RF029)!');
+      showToast('Orçamento gerado!');
       document.querySelector('[data-target="tab-pesquisa-eventos"]').click();
     }
 
@@ -379,11 +379,11 @@
         <p style="font-size:0.88rem; margin-bottom:12px;"><strong>Etapas:</strong> Local: ${ev.etapas.local} | Comida: ${ev.etapas.comida} | Áudio: ${ev.etapas.audio}</p>
         <div class="form-grid">
           <div class="form-group">
-            <label>Editar Valor Negociado (RF031)</label>
+            <label>Editar Valor Negociado</label>
             <input type="number" id="editValorEv" class="form-control" value="${ev.valorTotal}">
           </div>
           <div class="form-group">
-            <label>Vincular Parceiro (RF034)</label>
+            <label>Vincular Parceiro</label>
             <select id="addParceiroEv" class="form-control">
               <option value="">-- Selecionar Parceiro --</option>
               <option value="StageSound Áudio & Iluminação">StageSound Áudio & Iluminação</option>
@@ -393,15 +393,15 @@
           </div>
         </div>
         <div class="form-group">
-          <label>Observações de Aprovação / Recusa (RF033 - Cliente)</label>
+          <label>Observações de Aprovação / Recusa</label>
           <input type="text" id="obsAprovacao" class="form-control" placeholder="Ex.: Aprovado conforme proposta revisada">
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;">
           <button class="btn btn-primary btn-sm" onclick="salvarNegociacao('${ev.codigo}')">Salvar Negociação & Parceiro</button>
-          <button class="btn btn-outline btn-sm" onclick="showToast('Orçamento enviado e parceiros notificados (RF032 / RF035)!')">Notificar Parceiros</button>
-          <button class="btn btn-dark btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Aprovado')">Aprovar Orçamento (RF033)</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Orçamento enviado e parceiros notificados!')">Notificar Parceiros</button>
+          <button class="btn btn-dark btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Aprovado')">Aprovar Orçamento</button>
           <button class="btn btn-ghost btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Recusado')">Recusar</button>
-          <button class="btn btn-outline btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Realizado')">Finalizar Evento Realizado (RF038)</button>
+          <button class="btn btn-outline btn-sm" onclick="alterarStatusEvento('${ev.codigo}', 'Realizado')">Finalizar Evento Realizado</button>
         </div>
       `;
       openModal('modalEvento');
@@ -416,7 +416,7 @@
       saveDB(db);
       renderEventos();
       closeModal('modalEvento');
-      showToast('Orçamento editado e parceiros vinculados (RF031 / RF034).');
+      showToast('Orçamento editado e parceiros vinculados.');
     }
 
     function alterarStatusEvento(codigo, novoStatus) {

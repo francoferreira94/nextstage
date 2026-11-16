@@ -944,3 +944,71 @@ table.data-table tr:hover td {
     display: none;
   }
 }
+
+/* ==========================================================================
+   AJUSTES DE RESPONSIVIDADE PARA DISPOSITIVOS MÓVEIS (MOBILE / VERTICAL)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Garante que o layout principal respeite a largura da tela */
+  .app-container {
+    flex-direction: column;
+  }
+
+  .main-content {
+    padding: 12px !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Topbar responsiva */
+  .app-topbar {
+    padding: 10px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    height: auto;
+  }
+
+  .topbar-right-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Barras de filtro e formulários em coluna única no mobile */
+  .filter-bar, .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Grade do Calendário: Reduz colunas ou se adapta para mobile */
+  .calendar-grid {
+    grid-template-columns: repeat(7, minmax(36px, 1fr)) !important;
+    font-size: 0.75rem;
+  }
+
+  .calendar-cell {
+    min-height: 65px;
+    padding: 4px;
+  }
+
+  .cal-event-pill {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Tabelas com rolagem horizontal para não quebrar o layout */
+  .table-responsive, table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Cards de orçamento de duas colunas passam a ser uma coluna */
+  .budget-layout-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

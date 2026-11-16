@@ -156,7 +156,7 @@ const NextstageDB = {
     { id: 'FIN-101', data: '2026-11-05', descricao: 'Entrada 50% - Summit TechSul 2026', evento: 'Summit TechSul 2026', categoria: 'Sinal / Entrada de Contrato', formaPagamento: 'PIX / Transferência', valorBruto: 42250.00, desconto: 0.00, acrescimo: 0.00, status: 'Pago', tipo: 'Receita', obs: 'Comprovante anexado' },
     { id: 'FIN-102', data: '2026-11-10', descricao: 'Reserva Sonorização Line Array - StageSound', evento: 'Summit TechSul 2026', categoria: 'Cachê Prestadores de Serviço', formaPagamento: 'Boleto Bancário', valorBruto: 5600.00, desconto: 200.00, acrescimo: 0.00, status: 'Pago', tipo: 'Despesa', obs: 'Desconto pontualidade' },
     { id: 'FIN-103', data: '2026-11-14', descricao: 'Sinal 30% - Casamento Mariana & Rafael', evento: 'Casamento Mariana & Rafael', categoria: 'Sinal / Entrada de Contrato', formaPagamento: 'Cartão de Crédito', valorBruto: 18720.00, desconto: 0.00, acrescimo: 350.00, status: 'Pendente', tipo: 'Receita', obs: 'Aguardando assinatura final do orçamento' },
-    { id: 'FIN-104', data: '2026-10-26', descricao: 'Quitação Final - Gala Beneficente', evento: 'Gala Beneficente Instituto Horizonte', categoria: 'Receitas de Eventos', formaPagamento: 'Transferência TED', valorBruto: 71000.00, desconto: 0.00, acrescimo: 0.00, status: 'Pago', tipo: 'Receita', obs: 'Evento finalizado (RF038)' },
+    { id: 'FIN-104', data: '2026-10-26', descricao: 'Quitação Final - Gala Beneficente', evento: 'Gala Beneficente Instituto Horizonte', categoria: 'Receitas de Eventos', formaPagamento: 'Transferência TED', valorBruto: 71000.00, desconto: 0.00, acrescimo: 0.00, status: 'Pago', tipo: 'Receita', obs: 'Evento finalizado' },
     { id: 'FIN-105', data: '2026-11-18', descricao: 'Locação Cadeiras e Louças - Crystal Eventos', evento: 'Casamento Mariana & Rafael', categoria: 'Locação de Espaço e Materiais', formaPagamento: 'Boleto Bancário', valorBruto: 4800.00, desconto: 0.00, acrescimo: 0.00, status: 'Agendado', tipo: 'Despesa', obs: 'Entrega 1 dia antes' }
   ],
 
@@ -164,7 +164,7 @@ const NextstageDB = {
   auditorias: [
     { dataHora: '15/11/2026 14:22', usuario: 'joao.luiz', autorizador: 'joao.luiz', modulo: 'Financeiro', acao: 'Edição de Registro FIN-102 (Desconto R$ 200,00 aplicado)', tipo: 'Edição' },
     { dataHora: '15/11/2026 11:05', usuario: 'camila.prod', autorizador: 'Sistema', modulo: 'Agenda de Eventos', acao: 'Geração de Orçamento EVT-2026-02 enviado ao cliente', tipo: 'Processo' },
-    { dataHora: '14/11/2026 18:40', usuario: 'Sistema (RNF005)', autorizador: 'Automático', modulo: 'Configurações', acao: 'Backup diário criptografado concluído com sucesso', tipo: 'Processo' },
+    { dataHora: '14/11/2026 18:40', usuario: 'Sistema', autorizador: 'Automático', modulo: 'Configurações', acao: 'Backup diário criptografado concluído com sucesso', tipo: 'Processo' },
     { dataHora: '13/11/2026 09:15', usuario: 'joao.luiz', autorizador: 'joao.luiz', modulo: 'Configurações', acao: 'Atualização de permissões do perfil PRF-02', tipo: 'Edição' }
   ]
 };

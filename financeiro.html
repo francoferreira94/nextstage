@@ -315,7 +315,7 @@
       saveDB(db);
       renderCategoriasFin();
       e.target.reset();
-      showToast('Categoria financeira cadastrada (RF040).');
+      showToast('Categoria financeira cadastrada.');
     }
 
     function importarFinanceiro() {
@@ -335,7 +335,7 @@
           desconto: Number(desconto || 0),
           acrescimo: Number(acrescimo || 0),
           status: 'Pago',
-          obs: obs || 'Importado (RF044)'
+          obs: obs || 'Importado Manualmente'
         });
       });
       saveDB(db);
