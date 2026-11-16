@@ -9,25 +9,25 @@ const NextstageDB = {
       codigo: 'PRF-01',
       descricao: 'Administrador',
       permissoes: ['cadastros', 'agenda', 'financeiro', 'relatorios', 'configuracoes', 'editar_financeiro', 'auditoria', 'personalizar_marca'],
-      módulos: ['cadastros.html', 'agenda.html', 'financeiro.html', 'relatorios.html', 'configuracoes.html']
+      módulos: ['Cadastros', 'Agenda', 'Financeiro', 'Relatorios', 'Configurações']
     },
     {
       codigo: 'PRF-02',
       descricao: 'Funcionário',
       permissoes: ['cadastros', 'agenda', 'financeiro', 'relatorios', 'config_backup'],
-      módulos: ['cadastros.html', 'agenda.html', 'financeiro.html', 'relatorios.html', 'configuracoes.html']
+      módulos: ['Cadastros', 'Agenda', 'Financeiro', 'Relatorios', 'Configurações']
     },
     {
       codigo: 'PRF-03',
       descricao: 'Cliente',
       permissoes: ['solicitar_orcamento', 'aprovar_orcamento', 'agenda_cliente'],
-      módulos: ['agenda.html']
+      módulos: ['Agenda']
     },
     {
       codigo: 'PRF-04',
       descricao: 'Parceiro',
       permissoes: ['agenda_parceiro', 'disponibilidade'],
-      módulos: ['agenda.html', 'cadastros.html']
+      módulos: ['Agenda', 'Cadastros']
     }
   ],
 

@@ -199,7 +199,7 @@
         codigo: document.getElementById('prfCod').value,
         descricao: document.getElementById('prfDesc').value,
         permissoes: document.getElementById('prfPerms').value.split(',').map(s => s.trim()),
-        módulos: ['agenda.html', 'relatorios.html']
+        módulos: ['Agenda', 'Relatórios']
       });
       saveDB(db);
       renderPerfis();
