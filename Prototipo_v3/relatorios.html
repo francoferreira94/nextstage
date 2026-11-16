@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+<link rel="manifest" href="favicon/site.webmanifest">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios | Nextstage WebApp</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+    <div class="app-main">
+      <header id="app-topbar" class="app-topbar"></header>
+
+      <main class="app-content">
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2>Relatórios Operacionais e Financeiros</h2>
+          </div>
+
+          <div class="filter-bar">
+            <div class="form-group">
+              <label>Tipo de Relatório</label>
+              <select id="tipoRelatorio" class="form-control" onchange="gerarPreviewRelatorio()">
+                <option value="financeiro">Relatório Financeiro Consolidado por Evento</option>
+                <option value="eventos">Relatório de Agenda e Status de Eventos</option>
+                <option value="parceiros">Relatório de Alocação de Parceiros e Locais</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Período Referência</label>
+              <input type="month" id="periodoRelatorio" class="form-control" value="2026-11" onchange="gerarPreviewRelatorio()">
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-dark" onclick="imprimirApenasElemento('previewRelatorioContainer')">Exportar PDF</button>
+              <button class="btn btn-primary" onclick="exportarExcelCSV()">Exportar Excel (.CSV)</button>
+            </div>
+          </div>
+
+          <div id="previewRelatorioContainer" class="table-wrapper"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initTopbarRoleSwitcher('Relatórios', 'relatorios.html');
+
+    function gerarPreviewRelatorio() {
+      const db = getDB();
+      const tipo = document.getElementById('tipoRelatorio').value;
+      const container = document.getElementById('previewRelatorioContainer');
+
+      if (tipo === 'financeiro') {
+        container.innerHTML = `
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Data</th><th>Evento</th><th>Descrição</th><th>Forma Pagto</th><th>Valor Líquido</th><th>Status</th></tr></thead>
+            <tbody>
+              ${db.financeiro.map(f => `
+                <tr>
+                  <td>${f.id}</td><td>${f.data}</td><td>${f.evento}</td><td>${f.descricao}</td>
+                  <td>${f.formaPagamento}</td><td>${formatBRL(f.valorBruto - f.desconto + f.acrescimo)}</td><td>${f.status}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else if (tipo === 'eventos') {
+        container.innerHTML = `
+          <table class="data-table">
+            <thead><tr><th>Código</th><th>Evento</th><th>Cliente</th><th>Data</th><th>Local</th><th>Valor Orçado</th><th>Status</th></tr></thead>
+            <tbody>
+              ${db.eventos.map(e => `
+                <tr>
+                  <td>${e.codigo}</td><td>${e.nome}</td><td>${e.cliente}</td><td>${e.data}</td>
+                  <td>${e.local}</td><td>${formatBRL(e.valorTotal)}</td><td>${e.status}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else {
+        container.innerHTML = `
+          <table class="data-table">
+            <thead><tr><th>Tipo</th><th>Código</th><th>Parceiro / Local</th><th>Datas Disponíveis</th></tr></thead>
+            <tbody>
+              ${db.disponibilidades.map(d => `
+                <tr><td>${d.tipo}</td><td>${d.codigo}</td><td>${d.nome}</td><td>${d.datas}</td></tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    function exportarPDF() {
+      showToast('Preparando documento PDF formatado...');
+      setTimeout(() => printElement(document.getElementById('previewRelatorioContainer')), 400);
+    }
+	
+	function imprimirApenasElemento(elementId) {
+  const elemento = document.getElementById(elementId);
+  if (!elemento) {
+    showToast('Elemento de relatório não encontrado para impressão.');
+    return;
+  }
+
+  // Cria um iframe invisível para isolar o conteúdo da impressão
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  
+  // Copia as folhas de estilo principais para manter o design exato no PDF/Impressão
+  const estilos = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+    .map(node => node.outerHTML)
+    .join('');
+
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Imprimir Relatório</title>
+        ${estilos}
+        <style>
+          /* Ajustes específicos para impressão limpa */
+          body {
+            background-color: #ffffff !important;
+            padding: 20px;
+            color: #161E21 !important;
+          }
+          @media print {
+            body { -webkit-print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>
+        ${elemento.innerHTML}
+      </body>
+    </html>
+  `);
+  doc.close();
+
+  // Aguarda o carregamento dos estilos e dispara a impressão
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    
+    // Remove o iframe após a janela de impressão fechar
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 500);
+  }, 300);
+}		
+
+    function exportarExcelCSV() {
+      const db = getDB();
+      let csv = 'ID;Data;Evento;Descricao;FormaPagamento;ValorLiquido;Status\n';
+      db.financeiro.forEach(f => {
+        const liq = (f.valorBruto - f.desconto + f.acrescimo).toFixed(2).replace('.', ',');
+        csv += `${f.id};${f.data};${f.evento};${f.descricao};${f.formaPagamento};${liq};${f.status}\n`;
+      });
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'Nextstage_Relatorio_Financeiro.csv';
+      link.click();
+      showToast('Planilha Excel (.CSV) exportada com sucesso!');
+    }
+
+    gerarPreviewRelatorio();
+  </script>
+</body>
+</html>
